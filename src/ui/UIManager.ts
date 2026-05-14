@@ -35,9 +35,7 @@ export class UIManager {
   update(snapshot: GameSnapshot): void {
     const order = snapshot.orders[0];
     const firstPlayer = snapshot.players[0];
-    const heldSummary = snapshot.players
-      .map((player) => `${player.name}: ${player.heldItem?.label ?? "empty paws"}`)
-      .join(" | ");
+    const heldSummary = snapshot.players.map((player) => player.heldItem?.label ?? "empty").join(" / ");
 
     this.levelName.textContent = snapshot.levelName;
     this.activeOrder.textContent = order
@@ -52,10 +50,15 @@ export class UIManager {
       firstPlayer && firstPlayer.meowCooldownSeconds > 0
         ? `${Math.ceil(firstPlayer.meowCooldownSeconds)}s`
         : "Ready";
-    this.statusMessage.textContent =
-      snapshot.roundState === "finished"
-        ? `${snapshot.statusMessage} Final score: ${snapshot.score}. Press R to replay.`
-        : `${snapshot.statusMessage} ${heldSummary}`;
+    this.statusMessage.textContent = this.formatStatus(snapshot, heldSummary);
+  }
+
+  private formatStatus(snapshot: GameSnapshot, heldSummary: string): string {
+    if (snapshot.roundState === "finished") {
+      return `Service done. Final score ${snapshot.score}. Press R to replay.`;
+    }
+
+    return `${snapshot.statusMessage} Paws: ${heldSummary}`;
   }
 
   private formatSteps(steps: RecipeStep[]): string {

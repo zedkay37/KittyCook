@@ -4,6 +4,7 @@ import { AudioManager } from "./game/audio/AudioManager";
 import { InputManager } from "./game/input/InputManager";
 import { GameRenderer } from "./game/render/GameRenderer";
 import { GameSimulation } from "./game/simulation/GameSimulation";
+import type { SimulationEvent } from "./game/types";
 import { UIManager } from "./ui/UIManager";
 import "./styles.css";
 
@@ -32,15 +33,18 @@ function frame(now: number) {
   const frameSeconds = Math.min((now - previousTime) / 1000, 0.1);
   previousTime = now;
   accumulator += frameSeconds;
+  const frameEvents: SimulationEvent[] = [];
 
   while (accumulator >= fixedStepSeconds) {
     const inputs = input.readPlayerInputs(simulation.getPlayerSlots());
     const events = simulation.tick(fixedStepSeconds, inputs);
     audio.playEvents(events);
+    frameEvents.push(...events);
     accumulator -= fixedStepSeconds;
   }
 
   const snapshot = simulation.getSnapshot();
+  renderer.playEvents(frameEvents, snapshot);
   renderer.update(snapshot);
   renderer.render();
   ui.update(snapshot);

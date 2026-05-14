@@ -61,10 +61,11 @@ Before building features, read:
 
 ## Current Goal
 
-Build Milestone 1: Micro Prototype Fun.
+Build the visual alpha on top of Milestone 1: Micro Prototype Fun.
 
-The milestone is successful only if players understand the objective quickly,
-laugh during greybox playtests, and ask to replay.
+The current prototype is successful only if players understand the objective
+quickly, recognize the cat-chef identity from a screenshot, laugh during
+playtests, and ask to replay.
 
 ## Current Prototype Controls
 
@@ -107,3 +108,13 @@ Gamepad:
 6. Add ingredients to the plate at `Assemble`.
 7. Pick up the dish and serve it at `Serve`.
 8. Avoid the milk puddle, or slide through it for science.
+
+## Current Visual Alpha Direction
+
+- Procedural Three.js models, no required GLB pipeline yet.
+- Cartoon cats with hats, ears, tails, paws, player rings, and simple animation.
+- Station silhouettes are intentionally distinct by shape and color.
+- The kitchen is dressed as `Cushion Counter` with counters, tile seams, paw
+  prints, cushion rug, sign, and readable functional zones.
+- VFX are event-driven from simulation events: meow wave, cut sparks, steam,
+  burn smoke, slip splash, and score pop.
