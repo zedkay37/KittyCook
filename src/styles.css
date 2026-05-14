@@ -37,8 +37,9 @@ select {
 #app {
   position: relative;
   background:
-    radial-gradient(circle at 20% 15%, rgba(247, 198, 106, 0.16), transparent 22rem),
-    linear-gradient(135deg, #18232b 0%, #202b30 48%, #25222b 100%);
+    radial-gradient(circle at 18% 14%, rgba(247, 198, 106, 0.22), transparent 20rem),
+    radial-gradient(circle at 88% 78%, rgba(154, 210, 203, 0.18), transparent 18rem),
+    linear-gradient(135deg, #172027 0%, #202b2a 48%, #2a2427 100%);
 }
 
 #game-root {
@@ -62,6 +63,15 @@ select {
   grid-auto-rows: min-content;
   gap: 10px;
   pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+body.is-menu-open #hud,
+body.is-menu-open #controls-hint {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 .hud-panel {
@@ -115,6 +125,138 @@ select {
   color: #a7d676;
 }
 
+.hud-button {
+  align-self: start;
+  grid-column: 5;
+  grid-row: 2;
+  justify-self: end;
+  border: 1px solid rgba(255, 244, 214, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--hud-cream);
+  background: rgba(18, 24, 28, 0.76);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  font-weight: 800;
+  pointer-events: auto;
+}
+
+.level-menu {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 28% 18%, rgba(247, 198, 106, 0.2), transparent 18rem),
+    radial-gradient(circle at 70% 80%, rgba(154, 210, 203, 0.18), transparent 22rem),
+    rgba(12, 18, 22, 0.6);
+  backdrop-filter: blur(8px);
+  transition:
+    opacity 180ms ease,
+    visibility 180ms ease;
+}
+
+.level-menu.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.level-menu__panel {
+  width: min(920px, 100%);
+  border: 1px solid rgba(255, 244, 214, 0.2);
+  border-radius: 8px;
+  padding: 18px;
+  color: var(--hud-cream);
+  background:
+    linear-gradient(180deg, rgba(255, 244, 214, 0.12), rgba(255, 244, 214, 0.02)),
+    rgba(20, 27, 31, 0.9);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+}
+
+.level-menu__header {
+  max-width: 680px;
+  margin-bottom: 18px;
+}
+
+.level-menu h1 {
+  margin: 0 0 8px;
+  font-size: clamp(30px, 5vw, 58px);
+  line-height: 0.95;
+}
+
+.level-menu p {
+  margin: 0;
+  color: rgba(255, 244, 214, 0.78);
+  line-height: 1.45;
+}
+
+.level-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.level-card {
+  min-height: 150px;
+  border: 1px solid rgba(255, 244, 214, 0.16);
+  border-radius: 8px;
+  padding: 14px;
+  color: var(--hud-cream);
+  background:
+    linear-gradient(135deg, rgba(247, 198, 106, 0.16), transparent 42%),
+    rgba(255, 244, 214, 0.06);
+  cursor: pointer;
+  text-align: left;
+}
+
+.level-card.is-selected {
+  border-color: rgba(247, 198, 106, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(247, 198, 106, 0.34);
+}
+
+.level-card strong,
+.level-menu__footer strong {
+  display: block;
+  margin: 4px 0 8px;
+  font-size: 22px;
+}
+
+.level-card span {
+  display: block;
+}
+
+.level-card__mood {
+  color: var(--hud-teal);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.level-menu__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  border-top: 1px solid rgba(255, 244, 214, 0.12);
+  padding-top: 16px;
+}
+
+.primary-action {
+  border: 0;
+  border-radius: 8px;
+  padding: 13px 18px;
+  color: #172026;
+  background: linear-gradient(180deg, #ffe08a, #f7c66a);
+  box-shadow: 0 12px 30px rgba(247, 198, 106, 0.24);
+  cursor: pointer;
+  font-weight: 950;
+}
+
 #controls-hint {
   position: absolute;
   right: 16px;
@@ -162,5 +304,18 @@ select {
 
   #controls-hint span {
     font-size: 10px;
+  }
+
+  .level-menu {
+    padding: 10px;
+  }
+
+  .level-list {
+    grid-template-columns: 1fr;
+  }
+
+  .level-menu__footer {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

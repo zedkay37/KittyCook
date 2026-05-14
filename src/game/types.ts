@@ -25,6 +25,8 @@ export type StationStatus = "idle" | "processing" | "ready" | "burning" | "burne
 
 export type RoundState = "playing" | "finished";
 
+export type LevelVisualVariant = "cushion-counter" | "moonlit-bakery";
+
 export type SimulationEventType =
   | "pickup"
   | "drop"
@@ -160,6 +162,8 @@ export type LevelBounds = {
 export type LevelDefinition = {
   id: string;
   name: string;
+  description: string;
+  visualVariant: LevelVisualVariant;
   bounds: LevelBounds;
   playerSpawns: Vector2[];
   stations: StationDefinition[];
@@ -169,7 +173,10 @@ export type LevelDefinition = {
 
 export type GameSnapshot = {
   elapsedSeconds: number;
+  levelId: string;
   levelName: string;
+  levelDescription: string;
+  levelVisualVariant: LevelVisualVariant;
   roundState: RoundState;
   roundRemainingSeconds: number;
   players: PlayerState[];

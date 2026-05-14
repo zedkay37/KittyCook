@@ -114,7 +114,9 @@ Gamepad:
 - Procedural Three.js models, no required GLB pipeline yet.
 - Cartoon cats with hats, ears, tails, paws, player rings, and simple animation.
 - Station silhouettes are intentionally distinct by shape and color.
-- The kitchen is dressed as `Cushion Counter` with counters, tile seams, paw
-  prints, cushion rug, sign, and readable functional zones.
+- The game starts from a basic level-select menu.
+- Two kitchens are available: `Cushion Counter` and `Moonlit Bakery`.
+- Kitchens use cosy set dressing with counters, tile seams, paw prints, cushion
+  rugs, signs, warm bulbs, window glow, and readable functional zones.
 - VFX are event-driven from simulation events: meow wave, cut sparks, steam,
   burn smoke, slip splash, and score pop.

@@ -3,6 +3,8 @@ import type { LevelDefinition } from "../../game/types";
 export const microPrototypeLevel: LevelDefinition = {
   id: "micro-prototype-kitchen",
   name: "Cushion Counter",
+  description: "A warm cat cafe counter with wide lanes, readable stations, and one playful milk puddle.",
+  visualVariant: "cushion-counter",
   roundDurationSeconds: 180,
   bounds: {
     minX: -4.5,

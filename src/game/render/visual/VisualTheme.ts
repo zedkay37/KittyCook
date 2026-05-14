@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { StationType } from "../../types";
+import type { LevelVisualVariant, StationType } from "../../types";
 
 export const visualTheme = {
   world: {
@@ -44,6 +44,40 @@ export const visualTheme = {
     meow: "#9ad2cb",
     score: "#a7d676",
   },
+  variants: {
+    "cushion-counter": {
+      background: "#162027",
+      floor: "#40505a",
+      floorDark: "#2c3941",
+      counter: "#6e5642",
+      counterTop: "#f1c981",
+      rug: "#e86f68",
+      glow: "#f7c66a",
+      accent: "#9ad2cb",
+    },
+    "moonlit-bakery": {
+      background: "#151b2a",
+      floor: "#3b4656",
+      floorDark: "#252d3a",
+      counter: "#5f4c58",
+      counterTop: "#e4c4a0",
+      rug: "#8f79b8",
+      glow: "#d9c4ff",
+      accent: "#ffd6a4",
+    },
+  } satisfies Record<
+    LevelVisualVariant,
+    {
+      background: string;
+      floor: string;
+      floorDark: string;
+      counter: string;
+      counterTop: string;
+      rug: string;
+      glow: string;
+      accent: string;
+    }
+  >,
 } as const;
 
 export function standardMaterial(color: string, roughness = 0.7): THREE.MeshStandardMaterial {

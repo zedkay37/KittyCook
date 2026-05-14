@@ -1,5 +1,13 @@
 import * as THREE from "three";
-import type { GameSnapshot, HazardState, ItemInstance, PlayerState, SimulationEvent, StationState } from "../types";
+import type {
+  GameSnapshot,
+  HazardState,
+  ItemInstance,
+  LevelVisualVariant,
+  PlayerState,
+  SimulationEvent,
+  StationState,
+} from "../types";
 import { animateCharacterModel, createCharacterModel } from "./visual/CharacterModelFactory";
 import { createItemModel } from "./visual/ItemModelFactory";
 import { createKitchenSet } from "./visual/KitchenSetFactory";
@@ -17,6 +25,9 @@ export class GameRenderer {
   private readonly stationMeshes = new Map<string, THREE.Group>();
   private readonly itemMeshes = new Map<string, THREE.Group>();
   private readonly hazardMeshes = new Map<string, THREE.Group>();
+  private readonly moteGroup = new THREE.Group();
+  private kitchenSet: THREE.Group | null = null;
+  private currentVariant: LevelVisualVariant | null = null;
 
   private lastRenderTime = performance.now();
   private latestSnapshot: GameSnapshot | null = null;
@@ -44,6 +55,7 @@ export class GameRenderer {
     this.camera.lookAt(0, 0, 0);
 
     this.vfx = new VFXManager(this.scene);
+    this.moteGroup.name = "cozy-motes";
     this.setupScene();
     this.resize();
 
@@ -52,6 +64,8 @@ export class GameRenderer {
 
   update(snapshot: GameSnapshot): void {
     this.latestSnapshot = snapshot;
+    this.ensureKitchenSet(snapshot.levelVisualVariant);
+    this.syncSceneMaps(snapshot);
 
     for (const hazard of snapshot.hazards) {
       this.updateHazard(hazard);
@@ -107,10 +121,9 @@ export class GameRenderer {
     const fill = new THREE.DirectionalLight("#9ad2cb", 0.8);
     fill.position.set(-4, 4, -5);
     this.scene.add(fill);
+    this.createCozyMotes();
 
-    const kitchen = createKitchenSet();
-    kitchen.name = "kitchen-set";
-    this.scene.add(kitchen);
+    this.ensureKitchenSet("cushion-counter");
   }
 
   private animateScene(deltaSeconds: number): void {
@@ -135,6 +148,73 @@ export class GameRenderer {
       if (item?.location.type === "held") {
         group.rotation.y += deltaSeconds * 2.2;
       }
+    }
+
+    this.moteGroup.children.forEach((mote, index) => {
+      mote.position.y = 0.45 + ((snapshot.elapsedSeconds * 0.08 + index * 0.17) % 1.6);
+      mote.position.x += Math.sin(snapshot.elapsedSeconds * 0.7 + index) * deltaSeconds * 0.025;
+      mote.rotation.y += deltaSeconds * 0.4;
+    });
+  }
+
+  private ensureKitchenSet(variant: LevelVisualVariant): void {
+    if (this.currentVariant === variant && this.kitchenSet) {
+      return;
+    }
+
+    if (this.kitchenSet) {
+      this.scene.remove(this.kitchenSet);
+      disposeObject(this.kitchenSet);
+    }
+
+    this.currentVariant = variant;
+    this.kitchenSet = createKitchenSet(variant);
+    this.kitchenSet.name = "kitchen-set";
+    this.scene.add(this.kitchenSet);
+    const palette = visualTheme.variants[variant];
+    this.renderer.setClearColor(palette.background);
+    this.scene.background = new THREE.Color(palette.background);
+    this.scene.fog = new THREE.Fog(palette.background, 10, 21);
+  }
+
+  private createCozyMotes(): void {
+    for (let index = 0; index < 32; index += 1) {
+      const mote = sphere(0.018 + (index % 3) * 0.006, index % 2 === 0 ? "#ffe2a3" : "#b7fff3", [
+        -4.2 + (index % 8) * 1.2,
+        0.45 + (index % 5) * 0.26,
+        -2.8 + Math.floor(index / 8) * 1.8,
+      ]);
+      mote.name = "cozy-mote";
+      const material = mote.material;
+
+      if (material instanceof THREE.MeshStandardMaterial) {
+        material.transparent = true;
+        material.opacity = 0.26;
+        material.depthWrite = false;
+      }
+
+      this.moteGroup.add(mote);
+    }
+
+    this.scene.add(this.moteGroup);
+  }
+
+  private syncSceneMaps(snapshot: GameSnapshot): void {
+    this.removeStale(this.playerMeshes, new Set(snapshot.players.map((player) => player.id)));
+    this.removeStale(this.stationMeshes, new Set(snapshot.stations.map((station) => station.id)));
+    this.removeStale(this.itemMeshes, new Set(snapshot.items.map((item) => item.id)));
+    this.removeStale(this.hazardMeshes, new Set(snapshot.hazards.map((hazard) => hazard.id)));
+  }
+
+  private removeStale(meshes: Map<string, THREE.Group>, liveIds: Set<string>): void {
+    for (const [id, group] of meshes) {
+      if (liveIds.has(id)) {
+        continue;
+      }
+
+      this.scene.remove(group);
+      disposeObject(group);
+      meshes.delete(id);
     }
   }
 

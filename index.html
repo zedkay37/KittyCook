@@ -13,6 +13,27 @@
   <body>
     <div id="app">
       <div id="game-root" aria-label="KittyCook game view"></div>
+      <section id="level-menu" class="level-menu" aria-label="Choose a KittyCook level">
+        <div class="level-menu__panel">
+          <div class="level-menu__header">
+            <span class="hud-kicker">KittyCook</span>
+            <h1>Choose tonight's kitchen</h1>
+            <p>
+              A soft little service, warm lights, slippery milk, and cats trying
+              very hard to look professional.
+            </p>
+          </div>
+          <div id="level-list" class="level-list" aria-label="Available levels"></div>
+          <div class="level-menu__footer">
+            <div>
+              <span class="hud-kicker">Selected</span>
+              <strong id="selected-level-name">Cushion Counter</strong>
+              <p id="selected-level-description">A cosy cafe counter.</p>
+            </div>
+            <button id="start-level" class="primary-action" type="button">Start Service</button>
+          </div>
+        </div>
+      </section>
       <div id="hud" aria-live="polite">
         <div class="hud-panel hud-panel--brand">
           <span class="hud-kicker">KittyCook</span>
@@ -38,6 +59,7 @@
           <span class="hud-kicker">Status</span>
           <strong id="status-message">Move with WASD or a gamepad</strong>
         </div>
+        <button id="change-level" class="hud-button" type="button">Levels</button>
       </div>
       <div id="controls-hint">
         <span>Move: WASD / Arrows</span>

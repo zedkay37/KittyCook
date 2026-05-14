@@ -150,7 +150,10 @@ export class GameSimulation {
   getSnapshot(): GameSnapshot {
     return {
       elapsedSeconds: this.elapsedSeconds,
+      levelId: this.level.id,
       levelName: this.level.name,
+      levelDescription: this.level.description,
+      levelVisualVariant: this.level.visualVariant,
       roundState: this.roundState,
       roundRemainingSeconds: this.roundRemainingSeconds,
       players: this.players.map((player) => ({
