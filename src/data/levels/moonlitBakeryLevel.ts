@@ -2,9 +2,9 @@ import type { LevelDefinition } from "../../game/types";
 
 export const moonlitBakeryLevel: LevelDefinition = {
   id: "moonlit-bakery",
-  name: "Moonlit Bakery",
+  name: "Boulangerie au clair de lune",
   description:
-    "A calmer night-shift kitchen with cosy lanterns, tighter prep paths, and two sleepy milk spills.",
+    "Une cuisine de nuit plus calme, avec des lanternes cosy, des trajets serrés et deux flaques de lait somnolentes.",
   visualVariant: "moonlit-bakery",
   roundDurationSeconds: 180,
   bounds: {
@@ -23,7 +23,7 @@ export const moonlitBakeryLevel: LevelDefinition = {
     {
       id: "moon-fish-crate",
       type: "ingredient",
-      label: "Fish",
+      label: "Poisson",
       position: { x: -3.55, y: -1.9 },
       radius: 0.85,
       provides: "fish",
@@ -31,7 +31,7 @@ export const moonlitBakeryLevel: LevelDefinition = {
     {
       id: "moon-bread-crate",
       type: "ingredient",
-      label: "Bread",
+      label: "Pain",
       position: { x: -3.55, y: -0.75 },
       radius: 0.85,
       provides: "bread",
@@ -39,7 +39,7 @@ export const moonlitBakeryLevel: LevelDefinition = {
     {
       id: "moon-herb-crate",
       type: "ingredient",
-      label: "Herb",
+      label: "Herbes",
       position: { x: -3.55, y: 0.4 },
       radius: 0.85,
       provides: "herb",
@@ -47,7 +47,7 @@ export const moonlitBakeryLevel: LevelDefinition = {
     {
       id: "moon-plate-stack",
       type: "plate",
-      label: "Plates",
+      label: "Assiettes",
       position: { x: 3.35, y: -1.85 },
       radius: 0.85,
       provides: "plate",
@@ -55,7 +55,7 @@ export const moonlitBakeryLevel: LevelDefinition = {
     {
       id: "moon-cut-01",
       type: "cut",
-      label: "Cut",
+      label: "Découpe",
       position: { x: -1.6, y: 1.85 },
       radius: 0.85,
       processSeconds: 2.1,
@@ -63,7 +63,7 @@ export const moonlitBakeryLevel: LevelDefinition = {
     {
       id: "moon-cook-01",
       type: "cook",
-      label: "Cook",
+      label: "Cuisson",
       position: { x: 0.25, y: 1.85 },
       radius: 0.85,
       processSeconds: 4.4,
@@ -72,21 +72,21 @@ export const moonlitBakeryLevel: LevelDefinition = {
     {
       id: "moon-assemble-01",
       type: "assemble",
-      label: "Assemble",
+      label: "Assemblage",
       position: { x: 1.95, y: 0.35 },
       radius: 0.9,
     },
     {
       id: "moon-serve-01",
       type: "serve",
-      label: "Serve",
+      label: "Service",
       position: { x: 3.3, y: 1.8 },
       radius: 0.85,
     },
     {
       id: "moon-trash-01",
       type: "trash",
-      label: "Trash",
+      label: "Poubelle",
       position: { x: 0.1, y: -2.1 },
       radius: 0.7,
     },
@@ -95,7 +95,7 @@ export const moonlitBakeryLevel: LevelDefinition = {
     {
       id: "moon-milk-puddle-01",
       type: "milk-puddle",
-      label: "Moon Milk",
+      label: "Lait lunaire",
       position: { x: -0.75, y: -0.3 },
       radius: 0.55,
       active: true,
@@ -103,7 +103,7 @@ export const moonlitBakeryLevel: LevelDefinition = {
     {
       id: "moon-milk-puddle-02",
       type: "milk-puddle",
-      label: "Warm Milk",
+      label: "Lait tiède",
       position: { x: 1.35, y: 0.95 },
       radius: 0.5,
       active: true,

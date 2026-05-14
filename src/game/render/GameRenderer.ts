@@ -37,8 +37,10 @@ export class GameRenderer {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setClearColor(visualTheme.world.background);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.08;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.root.append(this.renderer.domElement);
 
     const aspect = this.root.clientWidth / Math.max(this.root.clientHeight, 1);
@@ -72,7 +74,7 @@ export class GameRenderer {
     }
 
     for (const station of snapshot.stations) {
-      this.updateStation(station);
+      this.updateStation(station, snapshot);
     }
 
     for (const player of snapshot.players) {
@@ -235,7 +237,7 @@ export class GameRenderer {
     animateCharacterModel(group, player, elapsedSeconds);
   }
 
-  private updateStation(station: StationState): void {
+  private updateStation(station: StationState, snapshot: GameSnapshot): void {
     let group = this.stationMeshes.get(station.id);
 
     if (!group) {
@@ -245,7 +247,18 @@ export class GameRenderer {
     }
 
     group.position.set(station.position.x, 0.24, -station.position.y);
-    updateStationModel(group, station);
+    updateStationModel(group, station, this.isStationNearPlayer(station, snapshot));
+  }
+
+  private isStationNearPlayer(station: StationState, snapshot: GameSnapshot): boolean {
+    const rangeSquared = station.radius * station.radius;
+
+    return snapshot.players.some((player) => {
+      const dx = player.position.x - station.position.x;
+      const dy = player.position.y - station.position.y;
+
+      return dx * dx + dy * dy <= rangeSquared;
+    });
   }
 
   private updateItem(item: ItemInstance, snapshot: GameSnapshot): void {

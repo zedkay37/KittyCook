@@ -29,7 +29,7 @@ export class OrderSystem {
       if (expired) {
         events.push({
           type: "order",
-          message: `${expired.recipeName} timed out. New order incoming.`,
+          message: `${expired.recipeName} a expiré. Nouvelle commande !`,
         });
       }
 

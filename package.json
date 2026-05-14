@@ -1,9 +1,9 @@
 {
   "name": "kittycook",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
-  "description": "Web-first 3D isometric cooperative party game about cat chefs.",
+  "description": "Party game coopératif 3D isométrique web-first avec des chats chefs.",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",

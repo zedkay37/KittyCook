@@ -15,14 +15,14 @@ export const levelOptions: LevelOption[] = [
     id: microPrototypeLevel.id,
     name: microPrototypeLevel.name,
     description: microPrototypeLevel.description,
-    mood: "Cosy cafe chaos",
+    mood: "Chaos de café cosy",
     level: microPrototypeLevel,
   },
   {
     id: moonlitBakeryLevel.id,
     name: moonlitBakeryLevel.name,
     description: moonlitBakeryLevel.description,
-    mood: "Soft night shift",
+    mood: "Service de nuit tout doux",
     level: moonlitBakeryLevel,
   },
 ];

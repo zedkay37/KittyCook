@@ -86,7 +86,7 @@ export class LevelMenu {
     const element = this.documentRef.querySelector<T>(selector);
 
     if (!element) {
-      throw new Error(`Missing menu element: ${selector}`);
+      throw new Error(`Élément de menu introuvable : ${selector}`);
     }
 
     return element;

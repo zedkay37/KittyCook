@@ -3,6 +3,7 @@ import type {
   HazardState,
   IngredientId,
   ItemInstance,
+  ItemState,
   LevelDefinition,
   PlayerInputState,
   PlayerState,
@@ -28,10 +29,18 @@ type GameSimulationOptions = {
 const playerColors = ["#f7c66a", "#9ad2cb", "#e86f68", "#a7d676"];
 const playerNames = ["Biscotte", "Miso", "Praline", "Katsu"];
 const itemDefinitions: Record<IngredientId | "plate", { name: string; color: string }> = {
-  fish: { name: "Fish", color: "#5bbbd6" },
-  bread: { name: "Bread", color: "#d8a85b" },
-  herb: { name: "Herb", color: "#7ac96f" },
-  plate: { name: "Plate", color: "#fff4d6" },
+  fish: { name: "Poisson", color: "#5bbbd6" },
+  bread: { name: "Pain", color: "#d8a85b" },
+  herb: { name: "Herbes", color: "#7ac96f" },
+  plate: { name: "Assiette", color: "#fff4d6" },
+};
+const itemStateLabels: Record<ItemState, string> = {
+  raw: "",
+  cut: "coupé",
+  cooked: "cuit",
+  burned: "brûlé",
+  dirty: "sale",
+  plated: "dressé",
 };
 
 export class GameSimulation {
@@ -47,7 +56,7 @@ export class GameSimulation {
   private elapsedSeconds = 0;
   private roundRemainingSeconds: number;
   private roundState: RoundState = "playing";
-  private statusMessage = "Grab ingredients, prep them, assemble plates, then serve.";
+  private statusMessage = "Prends des ingrédients, prépare-les, dresse une assiette, puis sers-la.";
   private nextItemId = 1;
 
   constructor(options: GameSimulationOptions) {
@@ -92,7 +101,7 @@ export class GameSimulation {
 
     if (this.consumeReset(inputs)) {
       this.reset();
-      return [{ type: "reset", message: "Kitchen reset. New service!" }];
+      return [{ type: "reset", message: "Cuisine remise à zéro. Nouveau service !" }];
     }
 
     if (this.roundState === "finished") {
@@ -104,7 +113,7 @@ export class GameSimulation {
 
     if (this.roundRemainingSeconds === 0) {
       this.roundState = "finished";
-      this.statusMessage = "Service finished. Press R to replay.";
+      this.statusMessage = "Service terminé. Appuie sur R pour rejouer.";
       events.push({ type: "order", message: this.statusMessage });
       return events;
     }
@@ -185,7 +194,7 @@ export class GameSimulation {
     this.elapsedSeconds = 0;
     this.roundRemainingSeconds = this.level.roundDurationSeconds;
     this.roundState = "playing";
-    this.statusMessage = "Kitchen reset. Grab ingredients and serve fast.";
+    this.statusMessage = "Cuisine relancée. Attrape les ingrédients et sers vite.";
     this.nextItemId = 1;
     this.items.clear();
     this.score.reset();
@@ -218,42 +227,111 @@ export class GameSimulation {
 
     if (player.slipSeconds > 0) {
       player.slipSeconds = Math.max(0, player.slipSeconds - deltaSeconds);
+      const slipDrag = Math.exp(-1.25 * deltaSeconds);
+      player.slipVelocity.x *= slipDrag;
+      player.slipVelocity.y *= slipDrag;
+    } else {
+      player.slipVelocity = { x: 0, y: 0 };
     }
   }
 
   private movePlayer(player: PlayerState, input: PlayerInputState, deltaSeconds: number): void {
     const movement = normalize(input.move);
+    const hasMovementInput = Math.abs(input.move.x) + Math.abs(input.move.y) > 0.01;
     const boosted = player.speedBoostSeconds > 0;
-    const baseSpeed = input.dashPressed ? 5.2 : 3.6;
-    const speed = boosted ? baseSpeed * 1.28 : baseSpeed;
+    const baseSpeed = input.dashPressed ? 5 : 3.55;
+    const speed = boosted ? baseSpeed * 1.3 : baseSpeed;
     const controlledVelocity = {
       x: movement.x * speed,
       y: movement.y * speed,
     };
+    const targetVelocity =
+      player.slipSeconds > 0
+        ? {
+            x: player.slipVelocity.x * 4.15 + controlledVelocity.x * 0.42,
+            y: player.slipVelocity.y * 4.15 + controlledVelocity.y * 0.42,
+          }
+        : controlledVelocity;
+    const response = player.slipSeconds > 0 ? 5.5 : hasMovementInput ? 17 : 10;
+    const blend = 1 - Math.exp(-response * deltaSeconds);
 
-    if (player.slipSeconds > 0) {
-      player.velocity = {
-        x: player.slipVelocity.x * 4.8 + controlledVelocity.x * 0.25,
-        y: player.slipVelocity.y * 4.8 + controlledVelocity.y * 0.25,
-      };
-    } else {
-      player.velocity = controlledVelocity;
+    player.velocity.x += (targetVelocity.x - player.velocity.x) * blend;
+    player.velocity.y += (targetVelocity.y - player.velocity.y) * blend;
+
+    if (!hasMovementInput && player.slipSeconds === 0 && Math.abs(player.velocity.x) + Math.abs(player.velocity.y) < 0.04) {
+      player.velocity = { x: 0, y: 0 };
     }
 
-    if (Math.abs(movement.x) + Math.abs(movement.y) > 0.01 && player.slipSeconds === 0) {
+    if (hasMovementInput && player.slipSeconds === 0) {
       player.facing = movement;
     }
 
-    player.position.x = clamp(
-      player.position.x + player.velocity.x * deltaSeconds,
-      this.level.bounds.minX,
-      this.level.bounds.maxX,
-    );
-    player.position.y = clamp(
-      player.position.y + player.velocity.y * deltaSeconds,
-      this.level.bounds.minY,
-      this.level.bounds.maxY,
-    );
+    player.position.x += player.velocity.x * deltaSeconds;
+    player.position.y += player.velocity.y * deltaSeconds;
+    this.clampPlayerPosition(player);
+    this.resolveStationCollisions(player);
+  }
+
+  private clampPlayerPosition(player: PlayerState): void {
+    player.position.x = clamp(player.position.x, this.level.bounds.minX, this.level.bounds.maxX);
+    player.position.y = clamp(player.position.y, this.level.bounds.minY, this.level.bounds.maxY);
+  }
+
+  private resolveStationCollisions(player: PlayerState): void {
+    const playerRadius = 0.31;
+
+    for (const station of this.stations.getMutableStations()) {
+      const solidRadius = this.getStationSolidRadius(station);
+
+      if (solidRadius <= 0) {
+        continue;
+      }
+
+      const minDistance = solidRadius + playerRadius;
+      const between = {
+        x: player.position.x - station.position.x,
+        y: player.position.y - station.position.y,
+      };
+      const currentDistance = Math.max(Math.hypot(between.x, between.y), 0.001);
+
+      if (currentDistance >= minDistance) {
+        continue;
+      }
+
+      const fallback = Math.abs(player.facing.x) + Math.abs(player.facing.y) > 0.01 ? player.facing : { x: 1, y: 0 };
+      const normal =
+        currentDistance > 0.001
+          ? { x: between.x / currentDistance, y: between.y / currentDistance }
+          : fallback;
+      const push = minDistance - currentDistance;
+
+      player.position.x += normal.x * push;
+      player.position.y += normal.y * push;
+      this.clampPlayerPosition(player);
+
+      const velocityIntoStation = player.velocity.x * normal.x + player.velocity.y * normal.y;
+
+      if (velocityIntoStation < 0) {
+        player.velocity.x -= normal.x * velocityIntoStation;
+        player.velocity.y -= normal.y * velocityIntoStation;
+      }
+    }
+  }
+
+  private getStationSolidRadius(station: StationState): number {
+    if (station.solidRadius !== undefined) {
+      return station.solidRadius;
+    }
+
+    if (station.type === "ingredient" || station.type === "plate") {
+      return 0.38;
+    }
+
+    if (station.type === "trash") {
+      return 0.34;
+    }
+
+    return 0.48;
   }
 
   private resolvePlayerBumps(): void {
@@ -299,6 +377,13 @@ export class GameSimulation {
           this.level.bounds.minY,
           this.level.bounds.maxY,
         );
+
+        first.velocity.x -= normal.x * 0.28;
+        first.velocity.y -= normal.y * 0.28;
+        second.velocity.x += normal.x * 0.28;
+        second.velocity.y += normal.y * 0.28;
+        this.resolveStationCollisions(first);
+        this.resolveStationCollisions(second);
       }
     }
   }
@@ -318,14 +403,14 @@ export class GameSimulation {
           continue;
         }
 
-        player.slipSeconds = 0.75;
-        player.slipCooldownSeconds = 1.2;
+        player.slipSeconds = 0.72;
+        player.slipCooldownSeconds = 1.05;
         player.slipVelocity = normalize(
           Math.abs(player.velocity.x) + Math.abs(player.velocity.y) > 0.1
             ? player.velocity
             : player.facing,
         );
-        this.statusMessage = `${player.name} skids through spilled milk.`;
+        this.statusMessage = `${player.name} glisse dans une flaque de lait.`;
         events.push({ type: "slip", message: this.statusMessage });
       }
     }
@@ -356,7 +441,7 @@ export class GameSimulation {
             item.state = "cut";
             item.label = this.getItemLabel(item);
             station.status = "ready";
-            this.statusMessage = `${item.label} is cut.`;
+            this.statusMessage = `${item.label} est prêt pour l'assiette.`;
             events.push({ type: "cut", message: this.statusMessage });
           }
 
@@ -366,7 +451,7 @@ export class GameSimulation {
             station.status = "burning";
             station.progress = 0;
             station.progressMax = station.burnAfterSeconds ?? 4;
-            this.statusMessage = `${item.label} is cooked. Grab it before it burns!`;
+            this.statusMessage = `${item.label} est prêt. Attrape-le avant qu'il brûle !`;
             events.push({ type: "cook", message: this.statusMessage });
           }
         }
@@ -377,7 +462,7 @@ export class GameSimulation {
           item.state = "burned";
           item.label = this.getItemLabel(item);
           station.status = "burned";
-          this.statusMessage = `${item.label} burned. Trash it fast.`;
+          this.statusMessage = `${item.label} a brûlé. Direction poubelle.`;
           events.push({ type: "burn", message: this.statusMessage });
         }
       }
@@ -413,7 +498,7 @@ export class GameSimulation {
       return this.useStationWithEmptyHands(player, nearestStation);
     }
 
-    this.statusMessage = `${player.name} pawed at empty air.`;
+    this.statusMessage = `${player.name} donne un coup de patte dans le vide.`;
     return { type: "error", message: this.statusMessage };
   }
 
@@ -428,7 +513,7 @@ export class GameSimulation {
       return this.pickupItem(player, item);
     }
 
-    this.statusMessage = `${station.label} needs something to work with.`;
+    this.statusMessage = `${station.label} a besoin d'un objet.`;
     return { type: "error", message: this.statusMessage };
   }
 
@@ -436,7 +521,7 @@ export class GameSimulation {
     const item = this.getHeldItem(player);
 
     if (!item) {
-      this.statusMessage = `${player.name} is not holding anything.`;
+      this.statusMessage = `${player.name} ne porte rien.`;
       return { type: "error", message: this.statusMessage };
     }
 
@@ -460,18 +545,18 @@ export class GameSimulation {
       return this.trashHeldItem(player);
     }
 
-    this.statusMessage = `${player.name} cannot use ${item.label} at ${station.label}.`;
+    this.statusMessage = `${player.name} ne peut pas utiliser ${item.label} sur ${station.label}.`;
     return { type: "error", message: this.statusMessage };
   }
 
   private startCutting(player: PlayerState, station: StationState, item: ItemInstance): SimulationEvent {
     if (station.heldItemId || station.status === "processing") {
-      this.statusMessage = `${station.label} is busy.`;
+      this.statusMessage = `${station.label} est déjà occupé.`;
       return { type: "error", message: this.statusMessage };
     }
 
     if (item.kind !== "ingredient" || item.state !== "raw" || item.ingredientId === "bread") {
-      this.statusMessage = `${item.label} does not need cutting here.`;
+      this.statusMessage = `${item.label} ne se coupe pas ici.`;
       return { type: "error", message: this.statusMessage };
     }
 
@@ -479,18 +564,18 @@ export class GameSimulation {
     station.status = "processing";
     station.progress = 0;
     station.progressMax = station.processSeconds ?? 2.2;
-    this.statusMessage = `${player.name} starts cutting ${item.label}.`;
+    this.statusMessage = `${player.name} découpe ${item.label}.`;
     return { type: "cut", message: this.statusMessage };
   }
 
   private startCooking(player: PlayerState, station: StationState, item: ItemInstance): SimulationEvent {
     if (station.heldItemId || station.status === "processing" || station.status === "burning") {
-      this.statusMessage = `${station.label} is busy.`;
+      this.statusMessage = `${station.label} est déjà occupé.`;
       return { type: "error", message: this.statusMessage };
     }
 
     if (item.kind !== "ingredient" || item.state === "burned" || item.ingredientId !== "fish") {
-      this.statusMessage = `${item.label} cannot be cooked here.`;
+      this.statusMessage = `${item.label} ne se cuit pas ici.`;
       return { type: "error", message: this.statusMessage };
     }
 
@@ -498,7 +583,7 @@ export class GameSimulation {
     station.status = "processing";
     station.progress = 0;
     station.progressMax = station.processSeconds ?? 4.2;
-    this.statusMessage = `${player.name} starts cooking ${item.label}.`;
+    this.statusMessage = `${player.name} lance la cuisson de ${item.label}.`;
     return { type: "cook", message: this.statusMessage };
   }
 
@@ -506,24 +591,24 @@ export class GameSimulation {
     if (!station.heldItemId && (item.kind === "plate" || item.kind === "dish")) {
       this.placeHeldItemOnStation(player, station);
       station.status = "ready";
-      this.statusMessage = `${player.name} sets ${item.label} on assembly.`;
+      this.statusMessage = `${player.name} pose ${item.label} sur l'assemblage.`;
       return { type: "drop", message: this.statusMessage };
     }
 
     if (!station.heldItemId) {
-      this.statusMessage = "Assembly needs a plate first.";
+      this.statusMessage = "L'assemblage demande une assiette d'abord.";
       return { type: "error", message: this.statusMessage };
     }
 
     const plate = this.items.get(station.heldItemId);
 
     if (!plate || (plate.kind !== "plate" && plate.kind !== "dish")) {
-      this.statusMessage = "Assembly is blocked by the wrong item.";
+      this.statusMessage = "L'assemblage est bloqué par le mauvais objet.";
       return { type: "error", message: this.statusMessage };
     }
 
     if (item.kind !== "ingredient" || !item.ingredientId || item.state === "burned") {
-      this.statusMessage = `${item.label} cannot go on a plate.`;
+      this.statusMessage = `${item.label} ne va pas sur une assiette.`;
       return { type: "error", message: this.statusMessage };
     }
 
@@ -535,7 +620,7 @@ export class GameSimulation {
     plate.color = "#fff4d6";
     item.location = { type: "discarded" };
     player.heldItem = null;
-    this.statusMessage = `${player.name} adds ${this.formatStep({
+    this.statusMessage = `${player.name} ajoute ${this.formatStep({
       ingredient: item.ingredientId,
       state: item.state,
     })}.`;
@@ -546,12 +631,12 @@ export class GameSimulation {
     const activeOrder = this.orders.getOrders()[0];
 
     if (!activeOrder) {
-      this.statusMessage = "No order is waiting.";
+      this.statusMessage = "Aucune commande n'attend.";
       return { type: "error", message: this.statusMessage };
     }
 
     if (!this.recipes.matchesRecipe(activeOrder.recipeId, item)) {
-      this.statusMessage = `${item.label} does not match ${activeOrder.recipeName}.`;
+      this.statusMessage = `${item.label} ne correspond pas à ${activeOrder.recipeName}.`;
       return { type: "error", message: this.statusMessage };
     }
 
@@ -559,14 +644,14 @@ export class GameSimulation {
     const completed = this.orders.completeOrder(activeOrder.recipeId);
 
     if (!recipe || !completed) {
-      this.statusMessage = "The order changed before service.";
+      this.statusMessage = "La commande a changé juste avant le service.";
       return { type: "error", message: this.statusMessage };
     }
 
     const value = this.score.addDelivery(completed, recipe);
     item.location = { type: "served" };
     player.heldItem = null;
-    this.statusMessage = `${player.name} served ${completed.recipeName} for ${value} points.`;
+    this.statusMessage = `${player.name} sert ${completed.recipeName} : +${value} points.`;
     return { type: "score", message: this.statusMessage };
   }
 
@@ -575,7 +660,7 @@ export class GameSimulation {
 
     if (!item) {
       this.clearStation(station);
-      this.statusMessage = `${station.label} is empty.`;
+      this.statusMessage = `${station.label} est vide.`;
       return { type: "error", message: this.statusMessage };
     }
 
@@ -585,14 +670,14 @@ export class GameSimulation {
     station.progress = 0;
     station.progressMax = station.processSeconds ?? 0;
     station.status = "idle";
-    this.statusMessage = `${player.name} picks up ${item.label}.`;
+    this.statusMessage = `${player.name} prend ${item.label}.`;
     return { type: "pickup", message: this.statusMessage };
   }
 
   private pickupItem(player: PlayerState, item: ItemInstance): SimulationEvent {
     player.heldItem = { itemId: item.id, label: item.label };
     item.location = { type: "held", playerId: player.id };
-    this.statusMessage = `${player.name} picks up ${item.label}.`;
+    this.statusMessage = `${player.name} prend ${item.label}.`;
     return { type: "pickup", message: this.statusMessage };
   }
 
@@ -600,14 +685,14 @@ export class GameSimulation {
     const item = this.getHeldItem(player);
 
     if (!item) {
-      this.statusMessage = `${player.name} has nothing to drop.`;
+      this.statusMessage = `${player.name} n'a rien à poser.`;
       return { type: "error", message: this.statusMessage };
     }
 
     item.position = this.getDropPosition(player);
     item.location = { type: "world" };
     player.heldItem = null;
-    this.statusMessage = `${player.name} drops ${item.label}.`;
+    this.statusMessage = `${player.name} pose ${item.label}.`;
     return { type: fallbackType, message: this.statusMessage };
   }
 
@@ -615,22 +700,22 @@ export class GameSimulation {
     const item = this.getHeldItem(player);
 
     if (!item) {
-      this.statusMessage = `${player.name} has nothing to trash.`;
+      this.statusMessage = `${player.name} n'a rien à jeter.`;
       return { type: "error", message: this.statusMessage };
     }
 
     item.location = { type: "discarded" };
     player.heldItem = null;
     this.score.addPenalty(10);
-    this.statusMessage = `${player.name} trashes ${item.label}.`;
+    this.statusMessage = `${player.name} jette ${item.label}.`;
     return { type: "drop", message: this.statusMessage };
   }
 
   private handleMeow(player: PlayerState): SimulationEvent {
     if (player.meowCooldownSeconds > 0) {
-      this.statusMessage = `${player.name} needs ${Math.ceil(
+      this.statusMessage = `${player.name} attend encore ${Math.ceil(
         player.meowCooldownSeconds,
-      )}s before another meow.`;
+      )}s avant un autre miaou.`;
       return { type: "error", message: this.statusMessage };
     }
 
@@ -642,7 +727,7 @@ export class GameSimulation {
       }
     }
 
-    this.statusMessage = `${player.name} meows. The brigade speeds up!`;
+    this.statusMessage = `${player.name} miaule. La brigade accélère !`;
     return { type: "meow", message: this.statusMessage };
   }
 
@@ -711,10 +796,46 @@ export class GameSimulation {
   }
 
   private getDropPosition(player: PlayerState): Vector2 {
+    const facing = Math.abs(player.facing.x) + Math.abs(player.facing.y) > 0.01 ? player.facing : { x: 0, y: 1 };
+    const side = { x: -facing.y, y: facing.x };
+    const candidates: Vector2[] = [
+      { x: player.position.x + facing.x * 0.7, y: player.position.y + facing.y * 0.7 },
+      { x: player.position.x + facing.x * 0.95, y: player.position.y + facing.y * 0.95 },
+      { x: player.position.x + side.x * 0.62, y: player.position.y + side.y * 0.62 },
+      { x: player.position.x - side.x * 0.62, y: player.position.y - side.y * 0.62 },
+      { x: player.position.x - facing.x * 0.52, y: player.position.y - facing.y * 0.52 },
+    ].map((position) => this.clampToBounds(position));
+
+    return candidates.find((position) => this.isDropPositionClear(position)) ?? this.clampToBounds(player.position);
+  }
+
+  private clampToBounds(position: Vector2): Vector2 {
     return {
-      x: clamp(player.position.x + player.facing.x * 0.58, this.level.bounds.minX, this.level.bounds.maxX),
-      y: clamp(player.position.y + player.facing.y * 0.58, this.level.bounds.minY, this.level.bounds.maxY),
+      x: clamp(position.x, this.level.bounds.minX, this.level.bounds.maxX),
+      y: clamp(position.y, this.level.bounds.minY, this.level.bounds.maxY),
     };
+  }
+
+  private isDropPositionClear(position: Vector2): boolean {
+    for (const station of this.stations.getMutableStations()) {
+      const minDistance = this.getStationSolidRadius(station) + 0.34;
+
+      if (distanceSquared(position, station.position) < minDistance * minDistance) {
+        return false;
+      }
+    }
+
+    for (const item of this.items.values()) {
+      if (item.location.type !== "world") {
+        continue;
+      }
+
+      if (distanceSquared(position, item.position) < 0.3 * 0.3) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private findNearestStation(player: PlayerState): StationState | null {
@@ -764,23 +885,36 @@ export class GameSimulation {
   private getItemLabel(item: ItemInstance): string {
     if (item.kind === "dish") {
       return item.contents.length > 0
-        ? `Plate: ${this.recipes.formatSteps(item.contents)}`
-        : "Empty Plate";
+        ? `Assiette : ${this.recipes.formatSteps(item.contents)}`
+        : "Assiette vide";
     }
 
     if (item.kind === "plate") {
-      return "Plate";
+      return "Assiette";
     }
 
     if (item.ingredientId) {
-      const definition = itemDefinitions[item.ingredientId];
-      return `${item.state === "raw" ? "" : `${item.state} `}${definition.name}`.trim();
+      return this.formatIngredientLabel(item.ingredientId, item.state);
     }
 
-    return "Item";
+    return "Objet";
   }
 
   private formatStep(step: RecipeStep): string {
     return this.recipes.formatSteps([step]);
+  }
+
+  private formatIngredientLabel(ingredientId: IngredientId, state: ItemState): string {
+    const definition = itemDefinitions[ingredientId];
+
+    if (state === "raw") {
+      return definition.name;
+    }
+
+    if (ingredientId === "herb" && state === "cut") {
+      return "Herbes coupées";
+    }
+
+    return `${definition.name} ${itemStateLabels[state]}`;
   }
 }

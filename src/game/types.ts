@@ -83,6 +83,7 @@ export type StationDefinition = {
   label: string;
   position: Vector2;
   radius: number;
+  solidRadius?: number;
   provides?: IngredientId | "plate";
   processSeconds?: number;
   burnAfterSeconds?: number;

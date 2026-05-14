@@ -1,71 +1,73 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="KittyCook: a web-first 3D cooperative party game about cat chefs."
+      content="KittyCook : un party game coopératif 3D web-first avec des chats chefs."
     />
     <link rel="icon" href="/favicon.svg" />
     <title>KittyCook</title>
   </head>
   <body>
     <div id="app">
-      <div id="game-root" aria-label="KittyCook game view"></div>
-      <section id="level-menu" class="level-menu" aria-label="Choose a KittyCook level">
+      <div id="game-root" aria-label="Vue de jeu KittyCook"></div>
+      <section id="level-menu" class="level-menu" aria-label="Choisir un niveau KittyCook">
         <div class="level-menu__panel">
           <div class="level-menu__header">
             <span class="hud-kicker">KittyCook</span>
-            <h1>Choose tonight's kitchen</h1>
+            <h1>Choisis la cuisine du soir</h1>
             <p>
-              A soft little service, warm lights, slippery milk, and cats trying
-              very hard to look professional.
+              Un petit service tout doux, des lampes chaudes, du lait glissant
+              et des chats qui essaient très fort d'avoir l'air professionnels.
             </p>
           </div>
-          <div id="level-list" class="level-list" aria-label="Available levels"></div>
+          <div id="level-list" class="level-list" aria-label="Niveaux disponibles"></div>
           <div class="level-menu__footer">
             <div>
-              <span class="hud-kicker">Selected</span>
-              <strong id="selected-level-name">Cushion Counter</strong>
-              <p id="selected-level-description">A cosy cafe counter.</p>
+              <span class="hud-kicker">Sélection</span>
+              <strong id="selected-level-name">Comptoir des coussins</strong>
+              <p id="selected-level-description">Un comptoir de café cosy.</p>
             </div>
-            <button id="start-level" class="primary-action" type="button">Start Service</button>
+            <button id="start-level" class="primary-action" type="button">Lancer le service</button>
           </div>
         </div>
       </section>
       <div id="hud" aria-live="polite">
         <div class="hud-panel hud-panel--brand">
           <span class="hud-kicker">KittyCook</span>
-          <strong id="level-name">Loading kitchen</strong>
+          <strong id="level-name">Cuisine en préparation</strong>
         </div>
         <div class="hud-panel hud-panel--orders">
-          <span class="hud-kicker">Order</span>
-          <strong id="active-order">Waiting</strong>
+          <span class="hud-kicker">Commande</span>
+          <strong id="active-order">En attente</strong>
         </div>
         <div class="hud-panel hud-panel--score">
           <span class="hud-kicker">Score</span>
           <strong id="score-value">0</strong>
         </div>
         <div class="hud-panel hud-panel--timer">
-          <span class="hud-kicker">Time</span>
+          <span class="hud-kicker">Temps</span>
           <strong id="round-timer">3:00</strong>
         </div>
         <div class="hud-panel hud-panel--meow">
-          <span class="hud-kicker">Meow</span>
-          <strong id="meow-status">Ready</strong>
+          <span class="hud-kicker">Miaou</span>
+          <strong id="meow-status">Prêt</strong>
         </div>
         <div class="hud-panel hud-panel--message">
-          <span class="hud-kicker">Status</span>
-          <strong id="status-message">Move with WASD or a gamepad</strong>
+          <span class="hud-kicker">Statut</span>
+          <strong id="status-message">Bouge avec WASD ou une manette</strong>
         </div>
-        <button id="change-level" class="hud-button" type="button">Levels</button>
+        <button id="change-level" class="hud-button" type="button">Niveaux</button>
       </div>
       <div id="controls-hint">
-        <span>Move: WASD / Arrows</span>
-        <span>Interact: Space / Enter</span>
-        <span>Meow: E / /</span>
-        <span>Replay: R</span>
+        <span>Bouger : WASD / Flèches</span>
+        <span>Action : Espace / Entrée</span>
+        <span>Poser : Q / Retour</span>
+        <span>Miaou : E / /</span>
+        <span>Dash : Shift</span>
+        <span>Rejouer : R</span>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

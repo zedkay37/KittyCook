@@ -31,10 +31,11 @@ export function createStationModel(station: StationState): THREE.Group {
   return group;
 }
 
-export function updateStationModel(group: THREE.Group, station: StationState): void {
+export function updateStationModel(group: THREE.Group, station: StationState, isNearby = false): void {
   const fill = group.getObjectByName("progress-fill");
   const back = group.getObjectByName("progress-back");
   const flame = group.getObjectByName("station-flame");
+  const halo = group.getObjectByName("station-halo");
   const ratio = station.progressMax > 0 ? station.progress / station.progressMax : 0;
   const visible = station.status === "processing" || station.status === "burning";
 
@@ -54,6 +55,17 @@ export function updateStationModel(group: THREE.Group, station: StationState): v
   if (flame) {
     flame.visible = station.status === "processing" || station.status === "burning";
     flame.scale.setScalar(station.status === "burning" ? 1.25 : 0.9);
+  }
+
+  if (halo) {
+    halo.scale.setScalar(isNearby ? 1.18 : 1);
+
+    const material = (halo as THREE.Mesh).material;
+
+    if (material instanceof THREE.MeshBasicMaterial) {
+      material.opacity = isNearby ? 0.58 : 0.28;
+      material.depthWrite = false;
+    }
   }
 }
 

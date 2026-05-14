@@ -2,8 +2,9 @@ import type { LevelDefinition } from "../../game/types";
 
 export const microPrototypeLevel: LevelDefinition = {
   id: "micro-prototype-kitchen",
-  name: "Cushion Counter",
-  description: "A warm cat cafe counter with wide lanes, readable stations, and one playful milk puddle.",
+  name: "Comptoir des coussins",
+  description:
+    "Un comptoir de café félin chaleureux, avec de larges passages, des stations lisibles et une flaque de lait taquine.",
   visualVariant: "cushion-counter",
   roundDurationSeconds: 180,
   bounds: {
@@ -22,7 +23,7 @@ export const microPrototypeLevel: LevelDefinition = {
     {
       id: "fish-crate",
       type: "ingredient",
-      label: "Fish",
+      label: "Poisson",
       position: { x: -3.5, y: -2.2 },
       radius: 0.85,
       provides: "fish",
@@ -30,7 +31,7 @@ export const microPrototypeLevel: LevelDefinition = {
     {
       id: "bread-crate",
       type: "ingredient",
-      label: "Bread",
+      label: "Pain",
       position: { x: -2.1, y: -2.2 },
       radius: 0.85,
       provides: "bread",
@@ -38,7 +39,7 @@ export const microPrototypeLevel: LevelDefinition = {
     {
       id: "herb-crate",
       type: "ingredient",
-      label: "Herb",
+      label: "Herbes",
       position: { x: -0.7, y: -2.2 },
       radius: 0.85,
       provides: "herb",
@@ -46,7 +47,7 @@ export const microPrototypeLevel: LevelDefinition = {
     {
       id: "plate-stack",
       type: "plate",
-      label: "Plates",
+      label: "Assiettes",
       position: { x: 0.9, y: -2.2 },
       radius: 0.85,
       provides: "plate",
@@ -54,7 +55,7 @@ export const microPrototypeLevel: LevelDefinition = {
     {
       id: "cut-01",
       type: "cut",
-      label: "Cut",
+      label: "Découpe",
       position: { x: -3.2, y: 1.8 },
       radius: 0.85,
       processSeconds: 2.2,
@@ -62,7 +63,7 @@ export const microPrototypeLevel: LevelDefinition = {
     {
       id: "cook-01",
       type: "cook",
-      label: "Cook",
+      label: "Cuisson",
       position: { x: 0, y: 2 },
       radius: 0.85,
       processSeconds: 4.2,
@@ -71,21 +72,21 @@ export const microPrototypeLevel: LevelDefinition = {
     {
       id: "assemble-01",
       type: "assemble",
-      label: "Assemble",
+      label: "Assemblage",
       position: { x: 1.7, y: 0.1 },
       radius: 0.9,
     },
     {
       id: "serve-01",
       type: "serve",
-      label: "Serve",
+      label: "Service",
       position: { x: 3.2, y: 1.8 },
       radius: 0.85,
     },
     {
       id: "trash-01",
       type: "trash",
-      label: "Trash",
+      label: "Poubelle",
       position: { x: 3.4, y: -2.1 },
       radius: 0.7,
     },
@@ -94,7 +95,7 @@ export const microPrototypeLevel: LevelDefinition = {
     {
       id: "milk-puddle-01",
       type: "milk-puddle",
-      label: "Milk Puddle",
+      label: "Flaque de lait",
       position: { x: 0.2, y: -0.7 },
       radius: 0.72,
       active: true,

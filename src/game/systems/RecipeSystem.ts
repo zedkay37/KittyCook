@@ -1,9 +1,18 @@
-import type { IngredientId, ItemInstance, RecipeDefinition, RecipeStep } from "../types";
+import type { IngredientId, ItemInstance, ItemState, RecipeDefinition, RecipeStep } from "../types";
 
 const ingredientNames: Record<IngredientId, string> = {
-  fish: "fish",
-  bread: "bread",
-  herb: "herb",
+  fish: "poisson",
+  bread: "pain",
+  herb: "herbes",
+};
+
+const stateNames: Record<ItemState, string> = {
+  raw: "",
+  cut: "coupé",
+  cooked: "cuit",
+  burned: "brûlé",
+  dirty: "sale",
+  plated: "dressé",
 };
 
 export class RecipeSystem {
@@ -79,6 +88,18 @@ export class RecipeSystem {
   }
 
   formatSteps(steps: RecipeStep[]): string {
-    return steps.map((step) => `${step.state} ${ingredientNames[step.ingredient]}`).join(" + ");
+    return steps.map((step) => this.formatStep(step)).join(" + ");
+  }
+
+  private formatStep(step: RecipeStep): string {
+    if (step.state === "raw") {
+      return ingredientNames[step.ingredient];
+    }
+
+    if (step.ingredient === "herb" && step.state === "cut") {
+      return "herbes coupées";
+    }
+
+    return `${ingredientNames[step.ingredient]} ${stateNames[step.state]}`;
   }
 }

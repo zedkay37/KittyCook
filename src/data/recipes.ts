@@ -3,7 +3,7 @@ import type { RecipeDefinition } from "../game/types";
 export const recipes: RecipeDefinition[] = [
   {
     id: "sardine-toast",
-    name: "Sardine Toast",
+    name: "Tartine de sardine",
     scoreValue: 120,
     steps: [
       { ingredient: "fish", state: "cut" },
@@ -12,13 +12,13 @@ export const recipes: RecipeDefinition[] = [
   },
   {
     id: "grilled-fish",
-    name: "Grilled Fish",
+    name: "Poisson grillé",
     scoreValue: 150,
     steps: [{ ingredient: "fish", state: "cooked" }],
   },
   {
     id: "purring-soup",
-    name: "Purring Soup",
+    name: "Soupe ronron",
     scoreValue: 180,
     steps: [
       { ingredient: "fish", state: "cooked" },
