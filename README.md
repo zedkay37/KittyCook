@@ -65,3 +65,45 @@ Build Milestone 1: Micro Prototype Fun.
 
 The milestone is successful only if players understand the objective quickly,
 laugh during greybox playtests, and ask to replay.
+
+## Current Prototype Controls
+
+Player 1:
+
+- `WASD`: move
+- `Space`: interact
+- `Q`: drop/cancel
+- `E`: motivational meow
+- `Left Shift`: dash
+
+Player 2:
+
+- `Arrow keys`: move
+- `Enter`: interact
+- `Backspace`: drop/cancel
+- `/`: motivational meow
+- `Right Shift`: dash
+
+Shared:
+
+- `R`: reset/replay the round
+
+Gamepad:
+
+- Left stick: move
+- `A`: interact
+- `B`: drop/cancel
+- `X`: dash
+- `Y`: motivational meow
+- Start/Menu: reset
+
+## Current Micro Loop
+
+1. Take a plate from `Plates`.
+2. Place it on `Assemble`.
+3. Take ingredients from crates.
+4. Cut fish or herbs at `Cut`.
+5. Cook fish at `Cook` and grab it before it burns.
+6. Add ingredients to the plate at `Assemble`.
+7. Pick up the dish and serve it at `Serve`.
+8. Avoid the milk puddle, or slide through it for science.

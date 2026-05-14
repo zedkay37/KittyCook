@@ -29,3 +29,7 @@ export function distanceSquared(a: Vector2, b: Vector2): number {
 
   return dx * dx + dy * dy;
 }
+
+export function distance(a: Vector2, b: Vector2): number {
+  return Math.sqrt(distanceSquared(a, b));
+}

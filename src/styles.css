@@ -50,7 +50,9 @@ select {
   position: absolute;
   inset: 16px;
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(180px, 1.2fr) minmax(120px, 0.7fr);
+  grid-template-columns:
+    minmax(130px, 0.9fr) minmax(230px, 1.6fr) minmax(100px, 0.6fr)
+    minmax(100px, 0.6fr) minmax(120px, 0.7fr);
   grid-auto-rows: min-content;
   gap: 10px;
   pointer-events: none;
@@ -70,7 +72,7 @@ select {
   display: block;
   overflow: hidden;
   color: #fff8df;
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -88,7 +90,12 @@ select {
 
 .hud-panel--message {
   grid-column: 1 / -1;
-  max-width: 520px;
+  max-width: 760px;
+}
+
+.hud-panel--orders strong,
+.hud-panel--message strong {
+  white-space: normal;
 }
 
 @media (max-width: 720px) {

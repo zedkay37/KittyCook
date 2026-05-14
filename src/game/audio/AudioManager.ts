@@ -19,11 +19,23 @@ export class AudioManager {
       return;
     }
 
+    if (this.context.state === "suspended") {
+      void this.context.resume();
+    }
+
     const frequencies: Record<SimulationEvent["type"], number> = {
+      pickup: 540,
+      drop: 320,
       interact: 520,
       meow: 760,
       score: 920,
       error: 180,
+      cook: 460,
+      cut: 680,
+      burn: 120,
+      slip: 240,
+      order: 360,
+      reset: 620,
     };
 
     const oscillator = this.context.createOscillator();

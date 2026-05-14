@@ -3,6 +3,7 @@ import type { LevelDefinition } from "../../game/types";
 export const microPrototypeLevel: LevelDefinition = {
   id: "micro-prototype-kitchen",
   name: "Cushion Counter",
+  roundDurationSeconds: 180,
   bounds: {
     minX: -4.5,
     maxX: 4.5,
@@ -17,11 +18,44 @@ export const microPrototypeLevel: LevelDefinition = {
   ],
   stations: [
     {
+      id: "fish-crate",
+      type: "ingredient",
+      label: "Fish",
+      position: { x: -3.5, y: -2.2 },
+      radius: 0.85,
+      provides: "fish",
+    },
+    {
+      id: "bread-crate",
+      type: "ingredient",
+      label: "Bread",
+      position: { x: -2.1, y: -2.2 },
+      radius: 0.85,
+      provides: "bread",
+    },
+    {
+      id: "herb-crate",
+      type: "ingredient",
+      label: "Herb",
+      position: { x: -0.7, y: -2.2 },
+      radius: 0.85,
+      provides: "herb",
+    },
+    {
+      id: "plate-stack",
+      type: "plate",
+      label: "Plates",
+      position: { x: 0.9, y: -2.2 },
+      radius: 0.85,
+      provides: "plate",
+    },
+    {
       id: "cut-01",
       type: "cut",
       label: "Cut",
       position: { x: -3.2, y: 1.8 },
       radius: 0.85,
+      processSeconds: 2.2,
     },
     {
       id: "cook-01",
@@ -29,6 +63,15 @@ export const microPrototypeLevel: LevelDefinition = {
       label: "Cook",
       position: { x: 0, y: 2 },
       radius: 0.85,
+      processSeconds: 4.2,
+      burnAfterSeconds: 4,
+    },
+    {
+      id: "assemble-01",
+      type: "assemble",
+      label: "Assemble",
+      position: { x: 1.7, y: 0.1 },
+      radius: 0.9,
     },
     {
       id: "serve-01",
@@ -43,6 +86,16 @@ export const microPrototypeLevel: LevelDefinition = {
       label: "Trash",
       position: { x: 3.4, y: -2.1 },
       radius: 0.7,
+    },
+  ],
+  hazards: [
+    {
+      id: "milk-puddle-01",
+      type: "milk-puddle",
+      label: "Milk Puddle",
+      position: { x: 0.2, y: -0.7 },
+      radius: 0.72,
+      active: true,
     },
   ],
 };

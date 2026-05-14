@@ -10,6 +10,7 @@ type KeyboardBinding = {
   cancel: string;
   dash: string;
   meow: string;
+  reset: string;
 };
 
 const neutralInput: PlayerInputState = {
@@ -18,6 +19,7 @@ const neutralInput: PlayerInputState = {
   cancelPressed: false,
   dashPressed: false,
   meowPressed: false,
+  resetPressed: false,
 };
 
 const keyboardBindings: Record<number, KeyboardBinding> = {
@@ -30,6 +32,7 @@ const keyboardBindings: Record<number, KeyboardBinding> = {
     cancel: "KeyQ",
     dash: "ShiftLeft",
     meow: "KeyE",
+    reset: "KeyR",
   },
   2: {
     up: "ArrowUp",
@@ -40,12 +43,14 @@ const keyboardBindings: Record<number, KeyboardBinding> = {
     cancel: "Backspace",
     dash: "ShiftRight",
     meow: "Slash",
+    reset: "KeyR",
   },
 };
 
 export class InputManager {
   private readonly keysDown = new Set<string>();
   private readonly keysPressed = new Set<string>();
+  private readonly previousGamepadButtons = new Map<number, boolean[]>();
 
   constructor(target: Window) {
     target.addEventListener("keydown", (event) => {
@@ -91,6 +96,7 @@ export class InputManager {
       cancelPressed: keyboard.cancelPressed || gamepad.cancelPressed,
       dashPressed: keyboard.dashPressed || gamepad.dashPressed,
       meowPressed: keyboard.meowPressed || gamepad.meowPressed,
+      resetPressed: keyboard.resetPressed || gamepad.resetPressed,
     };
   }
 
@@ -110,6 +116,7 @@ export class InputManager {
       cancelPressed: this.keysPressed.has(binding.cancel),
       dashPressed: this.keysPressed.has(binding.dash),
       meowPressed: this.keysPressed.has(binding.meow),
+      resetPressed: this.keysPressed.has(binding.reset),
     };
   }
 
@@ -123,13 +130,20 @@ export class InputManager {
     const deadZone = 0.22;
     const xAxis = Math.abs(gamepad.axes[0] ?? 0) > deadZone ? gamepad.axes[0] ?? 0 : 0;
     const yAxis = Math.abs(gamepad.axes[1] ?? 0) > deadZone ? -(gamepad.axes[1] ?? 0) : 0;
+    const previousButtons = this.previousGamepadButtons.get(slot) ?? [];
+    const currentButtons = gamepad.buttons.map((button) => button.pressed);
+    const pressedThisFrame = (index: number) =>
+      Boolean(currentButtons[index]) && !Boolean(previousButtons[index]);
+
+    this.previousGamepadButtons.set(slot, currentButtons);
 
     return {
       move: normalize({ x: xAxis, y: yAxis }),
-      interactPressed: Boolean(gamepad.buttons[0]?.pressed),
-      cancelPressed: Boolean(gamepad.buttons[1]?.pressed),
+      interactPressed: pressedThisFrame(0),
+      cancelPressed: pressedThisFrame(1),
       dashPressed: Boolean(gamepad.buttons[2]?.pressed),
-      meowPressed: Boolean(gamepad.buttons[3]?.pressed),
+      meowPressed: pressedThisFrame(3),
+      resetPressed: pressedThisFrame(9),
     };
   }
 }
