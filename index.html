@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="KittyCook: a web-first 3D cooperative party game about cat chefs."
+    />
+    <link rel="icon" href="/favicon.svg" />
+    <title>KittyCook</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="game-root" aria-label="KittyCook game view"></div>
+      <div id="hud" aria-live="polite">
+        <div class="hud-panel hud-panel--brand">
+          <span class="hud-kicker">KittyCook</span>
+          <strong id="level-name">Loading kitchen</strong>
+        </div>
+        <div class="hud-panel hud-panel--orders">
+          <span class="hud-kicker">Order</span>
+          <strong id="active-order">Waiting</strong>
+        </div>
+        <div class="hud-panel hud-panel--score">
+          <span class="hud-kicker">Score</span>
+          <strong id="score-value">0</strong>
+        </div>
+        <div class="hud-panel hud-panel--message">
+          <span class="hud-kicker">Status</span>
+          <strong id="status-message">Move with WASD or a gamepad</strong>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
